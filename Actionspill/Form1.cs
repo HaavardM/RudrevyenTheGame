@@ -49,7 +49,7 @@ namespace Actionspill
             shotTimer.Interval = 2; //Bullet velocity
             shotTimer.Start();
             hitCounter.Text = points.ToString();
-            emil1.Parent = emil2.Parent = emil3.Parent = emil4.Parent = emil5.Parent = carImage;
+            emil1.Parent = emil2.Parent = emil3.Parent = emil4.Parent = emil5.Parent = carImage; //For background to be transparent
             emil1.Top = emil2.Top = emil3.Top = emil4.Top = emil5.Top = emil1.Top - 140;
             enemies[0] = emil1;
             enemies[1] = emil2;
@@ -59,6 +59,7 @@ namespace Actionspill
         }
 
         #region TIMEREVENTS
+        //Moves shots and checks if there is an collision 
         private void ShotTimer_Tick(object sender, EventArgs e)
         {
             foreach (Panel s in shotsFired.ToArray())
@@ -72,6 +73,10 @@ namespace Actionspill
                         shotsFired.Remove(s);
                         this.Controls.Remove(s);
                         hitCounter.Text = (++points).ToString();
+                        if(points == 100)
+                        {
+                            havissPicture.Visible = true;
+                        }
                     }
                     else if (s.Top >= this.Height)
                     {
@@ -82,10 +87,15 @@ namespace Actionspill
             }
         }
 
+        //Spawns enemies
         private void EnemyTimer_Tick(object sender, EventArgs e)
         {
             int enemyNum = new Random().Next(0, enemies.Length);
             enemies[enemyNum].Visible = true;
+            if(points >= 100)
+            {
+                havissPicture.Visible = !(olofPicture.Visible = !olofPicture.Visible); //Game gets a bit more difficult - loss of focus
+            }
             foreach (PictureBox enemy in enemies)
             {
                 if (enemy.Visible == false)
@@ -93,9 +103,11 @@ namespace Actionspill
                     return;
                 }
             }
+            //If all enemies are visible - GAME OVER!
             gameOver();
         }
 
+        //Move player - if left/right key is pressed
         private void MoveTimer_Tick(object sender, EventArgs e)
         {
             if (movementRight && player.Right <= this.Width)
@@ -108,6 +120,7 @@ namespace Actionspill
             }
         }
         #endregion
+        //To avoid flickering
         protected override CreateParams CreateParams
         {
             get
@@ -119,7 +132,7 @@ namespace Actionspill
         }
 
         #region KEYBOARD
-        private void keyEvent(object sender, KeyEventArgs e)
+        private void keyDownEvent(object sender, KeyEventArgs e)
         {
             if (!isPaused && !isGameOver)
             {
@@ -141,6 +154,7 @@ namespace Actionspill
             }
         }
 
+        //"Another" button is pressed - not relevant to the game itself
         private void KeyPress_Event(object sender, KeyPressEventArgs e)
         {
             switch (e.KeyChar)
@@ -156,6 +170,7 @@ namespace Actionspill
             }
         }
 
+        //Key released
         private void KeyUp_Event(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Left && !movementRight || e.KeyCode == Keys.Right && movementRight)
@@ -167,7 +182,7 @@ namespace Actionspill
 
         #region GAMELOGIC
         //Fire a shot
-        private void fireShot()  
+        private void fireShot()  //Add a panel control
         {
             Panel shot = new Panel();
             shot.BackColor = Color.Black;
@@ -178,10 +193,12 @@ namespace Actionspill
             shot.BringToFront();
             shotsFired.Add(shot);
         }
+
+        //Checks if a shot and an enemy collides (panel and picturebox).
         private bool collision(Panel shot, PictureBox enemy)
         {
-            Point enemyPoint = enemy.FindForm().PointToClient(enemy.Parent.PointToScreen(enemy.Location)); //Get absolute position of control in window
-            return shot.Right >= enemyPoint.X - (enemy.Width / 2) + 5 && shot.Left <= enemyPoint.X + (enemy.Width / 2) + 20 && shot.Bottom >= enemyPoint.Y - (enemy.Height / 2) + 50 && shot.Top <= enemyPoint.Y + (enemy.Height / 2); //Checks if the shot is within the enemy boundries
+            Point enemyPoint = enemy.FindForm().PointToClient(enemy.Parent.PointToScreen(enemy.Location)); //Get absolute position of control in window - because of enemies parent
+            return shot.Right >= enemyPoint.X - (enemy.Width / 2) + 5 && shot.Left <= enemyPoint.X + (enemy.Width / 2) + 20 && shot.Bottom >= enemyPoint.Y - (enemy.Height / 2) + 50 && shot.Top <= enemyPoint.Y + (enemy.Height / 2); //Checks if the shot is within the enemy boundries - values is based on testing
         }
         #endregion
         

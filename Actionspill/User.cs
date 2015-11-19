@@ -19,8 +19,8 @@ namespace Actionspill
         public void addScore(int score)
         {
             scoreboard.Add(score);
-            scoreboard.Sort();
-            scoreboard.Reverse();
+            scoreboard.Sort(); //Sort - min to max
+            scoreboard.Reverse();//Reverse - max to min
         }
 
         public int[] getScoreboardArray()
